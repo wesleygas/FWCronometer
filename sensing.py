@@ -17,6 +17,7 @@ class TimedSensor():
         self.set_trigger = False
         self.release_trigger = False
         self.trigger_callback = trigger_callback
+        self.owner = None
     
     def resetting_handler(self, pin):
         self.now = time.ticks_us()
@@ -69,8 +70,8 @@ class SinglePoint():
 
 class DualPoint():
     def __init__(self):
-        self.pA = None
-        self.pB = None
+        self.pA: TimedSensor = None
+        self.pB: TimedSensor = None
     
     def reset(self, block=False):
         if self.pA is None:
@@ -87,23 +88,36 @@ class DualPoint():
         return self.pA.set_trigger and self.pB.set_trigger
 
     def get_trip_time(self):
-        if self.pA is None:
+        if self.pA is None or not self.pA.set_trigger:
             return 0
         end = self.pB.last_set if self.stop_triggered() else time.ticks_us()
         return time.ticks_diff(end, self.pA.last_set)
     
     def set_probes(self, pA: TimedSensor, pB: TimedSensor):
+        if(isinstance(pA.owner, DualPoint) and pA.owner != self):
+            print("Changing owner")
+            pA.owner.restore_probes()
+        pA.owner = self
         self.pA = pA
         self.pA.trigger_callback = self.clear_b_probe
+        if(isinstance(pB.owner, DualPoint) and pB.owner != self):
+            print("Changing owner")
+            pB.owner.restore_probes()
+        pB.owner = self
         self.pB = pB
         self.reset()
     
     def clear_b_probe(self):
         self.pB.reset()
-    
+
     def restore_probes(self):
-        if self.pA is None:
-            return
-        self.pA.reset()
-        self.pA.trigger_callback = lambda *args, **kwargs: None
-        self.pB.reset()
+        if self.pA is not None:
+            self.pA.reset()
+            self.pA.trigger_callback = lambda *args, **kwargs: None
+            self.pA.owner = None
+            self.pA = None
+        if self.pB is not None:
+            self.pB.reset()
+            self.pB.owner = None
+            self.pB = None
+
