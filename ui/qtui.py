@@ -8,6 +8,9 @@ from PyQt6.QtSerialPort import QSerialPort, QSerialPortInfo
 from PyQt6.QtCore import QIODevice, QTimer, Qt
 
 import struct
+from os import path
+bundle_dir = path.abspath(path.dirname(__file__))
+
 
 END_PACKET_DELIMITER = b'akb'
 RESET_PROBE_COMMAND = b'R'
@@ -19,7 +22,8 @@ CONFIGURE_RESTORE_AVERAGE_PROBE = b'CI'
 CONFIGURE_PROBE_COUNT = b'CP'
 
 # --- Stylesheet Definition ---
-with open("ui/stylesheet.qss", "r") as f:
+path_to_qss = path.join(bundle_dir, 'stylesheet.qss')
+with open(path_to_qss, "r") as f:
     STYLESHEET = f.read()
 
 class BarrierProbe():

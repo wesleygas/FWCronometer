@@ -1,0 +1,230 @@
+QWidget {
+    background-color: #f0f4f8; /* Light blue-grey background */
+    color: #212121; /* Dark grey text */
+    font-family: Arial, sans-serif; /* Consistent font */
+}
+
+QFrame#GroupFrame { /* Apply to frames used as groups */
+    background-color: #ffffff; /* White background for groups */
+    border: 1px solid #d0d9e3; /* Softer border */
+    border-radius: 8px;
+    padding: 10px;
+}
+
+QLabel#GroupTitle {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #0d47a1; /* Darker blue for titles */
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0; /* Subtle separator */
+    margin-bottom: 10px;
+}
+
+QLabel#PageTitle {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #1565c0; /* Medium blue page title */
+    padding: 10px;
+    border-bottom: 2px solid #1565c0;
+    margin-bottom: 15px;
+}
+
+QPushButton {
+    background-color: #2196f3; /* Primary blue */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 10pt;
+    font-weight: bold;
+    min-height: 20px; /* Ensure buttons have some height */
+}
+
+QPushButton:hover {
+    background-color: #1976d2; /* Darker blue on hover */
+}
+
+QPushButton:pressed {
+    background-color: #0d47a1; /* Even darker blue when pressed */
+}
+
+QPushButton:disabled {
+    background-color: #bdbdbd; /* Grey out disabled buttons */
+    color: #757575;
+}
+
+QPushButton#RefreshButton { /* Specific style for refresh */
+    background-color: #4caf50; /* Green */
+}
+QPushButton#RefreshButton:hover {
+    background-color: #388e3c;
+}
+QPushButton#RefreshButton:pressed {
+    background-color: #1b5e20;
+}
+
+QPushButton#ResetAllButton { /* Specific style for reset all */
+    background-color: #ff9800; /* Orange */
+    font-size: 11pt;
+}
+QPushButton#ResetAllButton:hover {
+    background-color: #f57c00;
+}
+QPushButton#ResetAllButton:pressed {
+    background-color: #e65100;
+}
+
+QPushButton#SmallResetButton { /* Smaller reset buttons */
+    background-color: #f44336; /* Red */
+    padding: 5px 10px;
+    font-size: 9pt;
+}
+QPushButton#SmallResetButton:hover {
+    background-color: #d32f2f;
+}
+QPushButton#SmallResetButton:pressed {
+    background-color: #b71c1c;
+}
+
+QComboBox, QSpinBox {
+    border: 1px solid #bdbdbd;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: white;
+    min-height: 20px;
+}
+QComboBox:focus, QSpinBox:focus {
+    border-color: #2196f3; /* Highlight focus */
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+QComboBox::down-arrow {
+    image: url(down_arrow.png); Requires a down_arrow.png file or use default */
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+
+
+QRadioButton {
+    spacing: 5px; /* Space between indicator and text */
+    font-size: 10pt;
+}
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+}
+QRadioButton::indicator::unchecked {
+    border: 1px solid #bdbdbd;
+    background-color: white;
+    border-radius: 8px;
+}
+QRadioButton::indicator::unchecked:hover {
+    border: 1px solid #2196f3;
+}
+QRadioButton::indicator::checked {
+    border: 1px solid #1976d2;
+    background-color: #2196f3;
+    border-radius: 8px;
+    image: url(radio_checked.png); /* Optional: Add a checkmark image inside */
+}
+QRadioButton:disabled {
+    color: #9e9e9e;
+}
+QRadioButton::indicator:disabled {
+    border: 1px solid #e0e0e0;
+    background-color: #e0e0e0;
+}
+
+
+QScrollArea {
+    border: none; /* Remove border from scroll area itself */
+}
+
+/* Time Display Labels */
+QLabel#TimeDisplayLabel {
+    font-family: "Courier New", Courier, monospace; /* Monospaced font for numbers */
+    font-size: 36pt; /* Base size, will be adjusted by resizeEvent */
+    font-weight: bold;
+    color: #000000; /* Black for high contrast */
+    background-color: #e3f2fd; /* Very light blue background */
+    border: 1px solid #90caf9; /* Light blue border */
+    border-radius: 8px;
+    padding: 5px 10px;
+    qproperty-alignment: 'AlignCenter'; /* Use Qt property for alignment */
+}
+
+QLabel#ProbeLabel {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #1565c0;
+    qproperty-alignment: 'AlignRight | AlignVCenter';
+}
+
+QLabel#UnitsLabel {
+    font-size: 12pt;
+    color: #546e7a; /* Grey-blue */
+    qproperty-alignment: 'AlignLeft | AlignVCenter';
+}
+
+QLabel#NotEnoughProbesLabel {
+    color: #d32f2f; /* Error red */
+    font-size: 12pt;
+    font-weight: bold;
+    background-color: #ffebee; /* Light red background */
+    border: 1px solid #ef9a9a;
+    border-radius: 5px;
+    padding: 10px;
+    qproperty-alignment: 'AlignCenter';
+}
+
+/* Style ScrollBars */
+QScrollBar:vertical {
+    border: none;
+    background: #e0e0e0;
+    width: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+ }
+ QScrollBar::handle:vertical {
+    background: #90caf9; /* Scroller handle color */
+    min-height: 20px;
+    border-radius: 6px;
+ }
+QScrollBar::handle:vertical:hover {
+    background: #64b5f6;
+ }
+ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+     border: none;
+     background: none;
+     height: 0px;
+ }
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }
+
+QScrollBar:horizontal {
+    border: none;
+    background: #e0e0e0;
+    height: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+QScrollBar::handle:horizontal {
+    background: #90caf9;
+    min-width: 20px;
+    border-radius: 6px;
+}
+QScrollBar::handle:horizontal:hover {
+    background: #64b5f6;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    border: none;
+    background: none;
+    width: 0px;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
