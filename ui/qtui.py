@@ -405,7 +405,7 @@ class StopwatchUI(QWidget):
     def configure_specific_average_mode(self, chrono_id, probe_a_idx, probe_b_idx):
         # Add check to prevent sending if A == B
         if probe_a_idx == probe_b_idx:
-            print(f"Warning: Attempted to configure average mode {chrono_id} with same start/end probe {probe_a_idx}. Command not sent.")
+            print("UI:", f"Warning: Attempted to configure average mode {chrono_id} with same start/end probe {probe_a_idx}. Command not sent.")
             # Optionally reset the time display here
             if chrono_id < len(self.average_chronometers):
                 self.average_chronometers[chrono_id]['time_display'].setText("ERR") # Indicate error state
@@ -538,7 +538,7 @@ class StopwatchUI(QWidget):
 
 
     def reset_all_chronometers(self):
-        print("Resetting all active probes")
+        print("UI:", "Resetting all active probes")
         # Reset all *active* probes
         if self.pages.currentIndex() == 0:
             for probe_id in range(self.probe_count):
@@ -562,7 +562,7 @@ class StopwatchUI(QWidget):
     def connect_serial(self):
         if self.serial.isOpen():
             self.serial.close()
-            print("Disconnected.")
+            print("UI:", "Disconnected.")
             self.connect_button.setText("Connect")
             self.connect_button.setStyleSheet("") # Reset style
             # Optionally reset port dropdown state or show disconnected status
@@ -573,10 +573,10 @@ class StopwatchUI(QWidget):
              QMessageBox.warning(self, "Connection Error", "No serial port selected.")
              return
 
-        print("selected port", selected_port)
+        print("UI:", "selected port", selected_port)
         self.serial.setPortName(selected_port)
         if self.serial.open(QIODevice.OpenModeFlag.ReadWrite):
-            print(f"Successfully connected to {selected_port}")
+            print("UI:", f"Successfully connected to {selected_port}")
             self.connect_button.setText("Disconnect")
             # Change button style on connect for visual feedback
             self.connect_button.setStyleSheet("background-color: #4caf50;") # Green when connected
@@ -598,18 +598,23 @@ class StopwatchUI(QWidget):
     def handle_serial_error(self, error):
         # Ignore certain errors like "Resource temporarily unavailable" which can happen during close
         if error == QSerialPort.SerialPortError.ResourceError:
-             print("Serial resource error occurred (possibly during disconnect).")
-             # If port is open and we get this, it might be a real issue
-             if self.serial.isOpen():
-                 QMessageBox.warning(self, "Serial Port Error", f"Serial port resource error: {self.serial.errorString()}. Disconnecting.")
+            print("UI:", "Serial resource error occurred (possibly during disconnect).")
+            # If port is open and we get this, it might be a real issue
+            if self.serial.isOpen():
                  self.serial.close()
                  self.connect_button.setText("Connect")
                  self.connect_button.setStyleSheet("")
+                 QMessageBox.warning(self, "Serial Port Error", f"Serial port resource error: {self.serial.errorString()}. Disconnecting.")
+            else:
+                print("UI:", "Serial port is closed, probably the device has been disconnected.")
+                ## Disconnecting
+                self.connect_serial()
+
 
         elif error != QSerialPort.SerialPortError.NoError:
              # Handle other errors more explicitly
             error_message = f"Serial port error: {self.serial.errorString()} (Code: {error})"
-            print(error_message)
+            print("UI:", error_message)
             if self.serial.isOpen():
                 QMessageBox.warning(self, "Serial Port Error", f"{error_message}. Check connection.")
                 # Consider disconnecting automatically on severe errors
@@ -649,12 +654,12 @@ class StopwatchUI(QWidget):
 
     def send_command(self, command: bytes):
         if self.serial.isOpen() and self.serial.isWritable():
-            # print(f"Sending: {command + END_PACKET_DELIMITER}") # Debug
+            #print("UI:", f"Sending: {command + END_PACKET_DELIMITER}") # Debug
             self.serial.write(command + END_PACKET_DELIMITER)
         elif not self.serial.isOpen():
-            print("Serial port not open. Cannot send command.")
+            print("UI:", "Serial port not open. Cannot send command.")
         else: # Port is open but not writable?
-            print("Serial port not writable. Cannot send command.")
+            print("UI:", "Serial port not writable. Cannot send command.")
 
 
     def read_serial_data(self):
@@ -664,8 +669,8 @@ class StopwatchUI(QWidget):
 
         # Process all complete packets in the buffer
         while END_PACKET_DELIMITER in self.serial_buffer:
+            #print("UI:", self.serial_buffer) # Debug
             pkt, self.serial_buffer = self.serial_buffer.split(END_PACKET_DELIMITER, 1)
-            # print(f"Received raw: {pkt}") # Debug raw packet
 
             # Add basic validation for packet length
             if not pkt: # Skip empty packets
@@ -677,18 +682,20 @@ class StopwatchUI(QWidget):
             try:
                 if command_code == REQUEST_AVERAGE_UPDATE and len(payload) >= 5: # 1 byte chrono_id + 4 bytes time
                     chrono_id, average_time = struct.unpack('<BL', payload[:5])
-                    # print(f"Parsed Average Update: Chrono ID {chrono_id}, Time {average_time}") # Debug
+                    # print("UI:", f"Parsed Average Update: Chrono ID {chrono_id}, Time {average_time}") # Debug
                     self.update_specific_average_display(chrono_id, average_time)
                 elif command_code == REQUEST_PROBE_UPDATE and len(payload) >= 5: # 1 byte probe_id + 4 bytes time
                     probe_id, pulse_time = struct.unpack('<BL', payload[:5])
-                    # print(f"Parsed Probe Update: Probe ID {probe_id}, Time {pulse_time}") # Debug
+                    # print("UI:", f"Parsed Probe Update: Probe ID {probe_id}, Time {pulse_time}") # Debug
                     self.update_instantaneous_display(probe_id, pulse_time)
+                elif command_code == b'OK':
+                    pass
                 else:
-                    print(f"Warning: Received unknown or malformed packet: {pkt}")
+                    print("UI:", f"Warning: Received unknown or malformed packet: {pkt}")
             except struct.error as e:
-                print(f"Error unpacking packet {pkt}: {e}")
+                print("UI:", f"Error unpacking packet {pkt}: {e}")
             except IndexError as e:
-                print(f"Error processing packet {pkt} due to insufficient length: {e}")
+                print("UI:", f"Error processing packet {pkt} due to insufficient length: {e}")
 
 
     def update_specific_average_display(self, chrono_id, average_time):
@@ -697,7 +704,7 @@ class StopwatchUI(QWidget):
             time_sec = average_time * 1e-6
             self.average_chronometers[chrono_id]['time_display'].setText(f"{time_sec:.4f}")
         else:
-            print(f"Warning: Received average update for invalid chronometer ID: {chrono_id}")
+            print("UI:", f"Warning: Received average update for invalid chronometer ID: {chrono_id}")
 
 
     def update_instantaneous_display(self, probe_id, pulse_time):
@@ -710,7 +717,7 @@ class StopwatchUI(QWidget):
              if probe_id < self.max_probes:
                  pass # Silently ignore updates for probes not currently displayed/configured
              else:
-                 print(f"Warning: Received instantaneous update for invalid probe ID: {probe_id}")
+                 print("UI:", f"Warning: Received instantaneous update for invalid probe ID: {probe_id}")
 
 
     def init_timer(self):
@@ -762,7 +769,7 @@ class StopwatchUI(QWidget):
     def closeEvent(self, event):
         # Ensure serial port is closed when the window closes
         if self.serial.isOpen():
-            print("Closing serial port...")
+            print("UI:", "Closing serial port...")
             self.serial.close()
         event.accept()
 
